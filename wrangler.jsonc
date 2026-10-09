@@ -1,0 +1,26 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "bisablanja-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "vars": {
+    "ENVIRONMENT": "local",
+    "CORS_ALLOWED_ORIGINS": "http://localhost:5173,https://localhost"
+  },
+  "env": {
+    "staging": {
+      "name": "bisablanja-api-staging",
+      "vars": {
+        "ENVIRONMENT": "staging",
+        "CORS_ALLOWED_ORIGINS": "https://localhost"
+      }
+    },
+    "production": {
+      "name": "bisablanja-api-production",
+      "vars": {
+        "ENVIRONMENT": "production",
+        "CORS_ALLOWED_ORIGINS": "https://localhost"
+      }
+    }
+  }
+}
