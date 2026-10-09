@@ -13,6 +13,22 @@
     "test": "vitest run",
     "openapi:generate": "tsx scripts/generate-openapi.ts"
   },
+  "pnpm": {
+    "supportedArchitectures": {
+      "os": [
+        "current",
+        "linux"
+      ],
+      "cpu": [
+        "current",
+        "x64"
+      ],
+      "libc": [
+        "current",
+        "glibc"
+      ]
+    }
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -31,7 +47,7 @@
     "tsx": "^4.23.15",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.71.1",
-    "vitest": "^5.0.3",
+    "vitest": "^3.2.7",
     "wrangler": "^4.149.0"
   }
 }

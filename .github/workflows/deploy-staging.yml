@@ -1,0 +1,38 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  check:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: check
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Deploy ke staging
+        run: pnpm wrangler deploy --env staging
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Smoke test /v1/health
+        env:
+          STAGING_URL: ${{ vars.STAGING_URL }}
+        run: |
+          curl --fail --silent --show-error --retry 5 --retry-delay 3 --retry-all-errors \
+            "$STAGING_URL/v1/health" | tee /dev/stderr | grep -q '"environment":"staging"'
