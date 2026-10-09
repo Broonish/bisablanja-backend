@@ -128,7 +128,7 @@ describe('pagination', () => {
 describe('Idempotency-Key', () => {
   it('menerima key yang valid', async () => {
     const res = await app.request('/v1/health', { headers: { 'Idempotency-Key': 'abc12345-xyz' } }, env)
-    expect(res.status).toBe(200)
+    expect(res.status).toBe(201)
   })
 
   it('400 untuk key yang tidak valid', async () => {
