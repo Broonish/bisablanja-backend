@@ -13,6 +13,15 @@
     "test": "vitest run",
     "openapi:generate": "tsx scripts/generate-openapi.ts"
   },
+  
+  "pnpm": {
+    "supportedArchitectures": {
+      "os": ["current", "linux"],
+      "cpu": ["current", "x64"],
+      "libc": ["current", "glibc"]
+   }
+  },
+  
   "keywords": [],
   "author": "",
   "license": "ISC",
