@@ -9,7 +9,7 @@ export const idempotency = createMiddleware<AppEnv>(async (c, next) => {
   if (key !== undefined) {
     if (!IDEMPOTENCY_KEY_PATTERN.test(key)) {
       throw new AppError(
-        'INVALID_IDEMPOTENCY_KEY',
+        'invalid_idempotency_key',
         'Idempotency-Key tidak valid. Gunakan 8 sampai 128 karakter: huruf, angka, strip, atau garis bawah.',
         400,
       )
