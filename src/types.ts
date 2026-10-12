@@ -1,5 +1,5 @@
 export type Bindings = {
-  ENVIRONMENT: string
+  ENVIRONMENT: 'local' | 'staging' | 'production'
   CORS_ALLOWED_ORIGINS: string
 }
 

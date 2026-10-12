@@ -1,10 +1,11 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 import { cors } from 'hono/cors'
 import { HTTPException } from 'hono/http-exception'
-import { AppError, errorBody } from './lib/errors'
+import { AppError, errorBody, toErrorDetails } from './lib/errors'
+import { API_VERSION } from './lib/version'
+import { idempotency } from './middleware/idempotency'
 import { healthRoutes } from './modules/health/health.route'
 import type { AppEnv } from './types'
-import { idempotency } from './middleware/idempotency'
 
 export function createApp() {
   const app = new OpenAPIHono<AppEnv>({
@@ -12,8 +13,12 @@ export function createApp() {
     defaultHook: (result, c) => {
       if (!result.success) {
         return c.json(
-          errorBody('VALIDATION_ERROR', 'Data yang dikirim tidak valid.', result.error.issues),
-          422,
+          errorBody(
+            'validation_error',
+            'Data yang dikirim tidak valid.',
+            toErrorDetails(result.error.issues),
+          ),
+          400,
         )
       }
     },
@@ -29,23 +34,27 @@ export function createApp() {
           .filter(Boolean)
         return allowed.includes(origin) ? origin : null
       },
-      allowHeaders: ['Authorization', 'Content-Type', 'Idempotency-Key'],
+      allowHeaders: [
+        'Authorization',
+        'Content-Type',
+        'Idempotency-Key',
+        'If-Match',
+      ],
       allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       maxAge: 600,
     }),
   )
-  
   app.use('*', idempotency)
 
   app.route('/v1', healthRoutes)
 
-  app.doc('/v1/openapi.json', {
-    openapi: '3.0.0',
-    info: { title: 'Bisablanja API', version: '0.1.0' },
+  app.doc31('/v1/openapi.json', {
+    openapi: '3.1.0',
+    info: { title: 'Bisablanja API', version: API_VERSION },
   })
 
   app.notFound((c) =>
-    c.json(errorBody('NOT_FOUND', 'Rute tidak ditemukan.'), 404),
+    c.json(errorBody('not_found', 'Rute tidak ditemukan.'), 404),
   )
 
   app.onError((err, c) => {
@@ -53,10 +62,16 @@ export function createApp() {
       return c.json(errorBody(err.code, err.message, err.details), err.status)
     }
     if (err instanceof HTTPException) {
-      return c.json(errorBody('HTTP_ERROR', 'Permintaan tidak dapat diproses.'), err.status)
+      return c.json(
+        errorBody('http_error', 'Permintaan tidak dapat diproses.'),
+        err.status,
+      )
     }
     console.error(err)
-    return c.json(errorBody('INTERNAL_ERROR', 'Terjadi kesalahan pada server.'), 500)
+    return c.json(
+      errorBody('internal_error', 'Terjadi kesalahan pada server.'),
+      500,
+    )
   })
 
   return app
